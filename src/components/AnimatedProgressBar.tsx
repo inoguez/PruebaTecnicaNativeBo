@@ -1,15 +1,24 @@
-import React, { useState, useEffect } from "react";
+import type React from "react";
+import { useState, useEffect } from "react";
 import { Progress } from "@/components/ui/progress";
 
-const AnimatedProgressBar = ({
+interface AnimatedProgressBarProps
+	extends React.ComponentProps<typeof Progress> {
+	value: number;
+	max: number;
+	duration?: number;
+	delay?: number;
+}
+
+const AnimatedProgressBar: React.FC<AnimatedProgressBarProps> = ({
 	value,
 	max,
 	duration = 1000,
 	delay = 0,
 	...props
 }) => {
-	const [currentValue, setCurrentValue] = useState(0);
-	const [animationStarted, setAnimationStarted] = useState(false);
+	const [currentValue, setCurrentValue] = useState<number>(0);
+	const [animationStarted, setAnimationStarted] = useState<boolean>(false);
 
 	useEffect(() => {
 		const startTimer = setTimeout(() => {
