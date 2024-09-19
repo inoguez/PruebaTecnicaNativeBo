@@ -31,7 +31,7 @@ const initDB = async (): Promise<IDBDatabase> => {
 // Function to add a Pokemon to favorites
 export const addPokemonToFavorites = async (
   pokemon: Pokemon
-): Promise<void> => {
+): Promise<{ status: number; message: string }> => {
   const db = await initDB();
   const transaction = db.transaction(['favorites'], 'readwrite');
   const store = transaction.objectStore('favorites');
@@ -39,8 +39,7 @@ export const addPokemonToFavorites = async (
   return new Promise((resolve, reject) => {
     const request = store.add(pokemon);
     request.onsuccess = () => {
-      console.log('se registro correctamente');
-      resolve();
+      resolve({ status: 200, message: 'Se registro con exito' });
     };
     request.onerror = (event) => {
       console.log('Hubo un error');
@@ -51,7 +50,9 @@ export const addPokemonToFavorites = async (
 };
 
 // Function to remove a Pokemon from favorites
-export const removePokemonFromFavorites = async (id: string): Promise<void> => {
+export const removePokemonFromFavorites = async (
+  id: string
+): Promise<{ status: number; message: string }> => {
   const db = await initDB();
   const transaction = db.transaction(['favorites'], 'readwrite');
   const store = transaction.objectStore('favorites');
@@ -59,7 +60,7 @@ export const removePokemonFromFavorites = async (id: string): Promise<void> => {
   return new Promise((resolve, reject) => {
     const request = store.delete(id);
     request.onsuccess = () => {
-      resolve();
+      resolve({ status: 200, message: 'Se elimino con exito' });
     };
     request.onerror = (event) => {
       reject((event.target as IDBRequest).error);

@@ -14,6 +14,7 @@ import {
   removePokemonFromFavorites,
 } from '@/utils';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 export default function PokeCard({ name }: { name: string }) {
   const [pokemon, setPokemon] = useState<Pokemon | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(true);
@@ -44,14 +45,29 @@ export default function PokeCard({ name }: { name: string }) {
     isFavorite();
   }, [pokemon]);
 
-  function handleFavorite() {
+  async function handleFavorite() {
     const id = pokemon?.id;
     const name = pokemon?.name;
     if (id && name) {
       if (isFavorite) {
-        return removePokemonFromFavorites(pokemon.id);
+        const { status, message } = await removePokemonFromFavorites(
+          pokemon.id
+        );
+        if (status === 200) {
+          toast(message);
+          setIsFavorite(false);
+        }
+        return;
       }
-      addPokemonToFavorites({ id: id, name: name });
+      const { status, message } = await addPokemonToFavorites({
+        id: id,
+        name: name,
+      });
+
+      if (status === 200) {
+        toast(message);
+        setIsFavorite(true);
+      }
     }
   }
   return (
