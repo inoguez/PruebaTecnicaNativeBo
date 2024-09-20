@@ -1,62 +1,74 @@
-import type React from "react";
-import { useState, useEffect } from "react";
-import { Progress } from "@/components/ui/progress";
+import React, { useState, useEffect, useRef } from 'react';
+import { Progress } from '@/components/ui/progress';
 
 interface AnimatedProgressBarProps
-	extends React.ComponentProps<typeof Progress> {
-	value: number;
-	max: number;
-	duration?: number;
-	delay?: number;
+  extends React.ComponentProps<typeof Progress> {
+  value: number;
+  max: number;
+  duration?: number;
+  delay?: number;
 }
 
 const AnimatedProgressBar: React.FC<AnimatedProgressBarProps> = ({
-	value,
-	max,
-	duration = 1000,
-	delay = 0,
-	...props
+  value,
+  max,
+  duration = 1000,
+  delay = 0,
+  ...props
 }) => {
-	const [currentValue, setCurrentValue] = useState<number>(0);
-	const [animationStarted, setAnimationStarted] = useState<boolean>(false);
+  const [currentValue, setCurrentValue] = useState<number>(0);
+  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const progressRef = useRef<HTMLDivElement>(null);
 
-	useEffect(() => {
-		const startTimer = setTimeout(() => {
-			setAnimationStarted(true);
-		}, delay);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.1 }
+    );
 
-		return () => clearTimeout(startTimer);
-	}, [delay]);
+    if (progressRef.current) {
+      observer.observe(progressRef.current);
+    }
 
-	useEffect(() => {
-		if (!animationStarted) return;
+    return () => {
+      if (progressRef.current) {
+        observer.unobserve(progressRef.current);
+      }
+    };
+  }, []);
 
-		const timer = setTimeout(() => {
-			setCurrentValue(value);
-		}, 100);
+  useEffect(() => {
+    if (!isVisible) return;
 
-		return () => clearTimeout(timer);
-	}, [value, animationStarted]);
+    const startTimer = setTimeout(() => {
+      const stepTime = duration / value;
+      let currentStep = 0;
 
-	useEffect(() => {
-		if (!animationStarted) return;
+      const intervalId = setInterval(() => {
+        if (currentStep < value) {
+          setCurrentValue(currentStep + 1);
+          currentStep++;
+        } else {
+          clearInterval(intervalId);
+        }
+      }, stepTime);
 
-		const stepTime = Math.abs(Math.floor(duration / value));
-		if (currentValue !== value) {
-			const timer = setTimeout(() => {
-				setCurrentValue((prevValue) => {
-					const newValue = prevValue + (value > prevValue ? 1 : -1);
-					return value > prevValue
-						? Math.min(newValue, value)
-						: Math.max(newValue, value);
-				});
-			}, stepTime);
+      return () => clearInterval(intervalId);
+    }, delay);
 
-			return () => clearTimeout(timer);
-		}
-	}, [value, currentValue, duration, animationStarted]);
+    return () => clearTimeout(startTimer);
+  }, [isVisible, value, duration, delay]);
 
-	return <Progress value={currentValue} max={max} {...props} />;
+  return (
+    <div ref={progressRef}>
+      <Progress value={currentValue} max={max} {...props} />
+    </div>
+  );
 };
 
 export default AnimatedProgressBar;
