@@ -84,7 +84,7 @@
 
 @font-face {
   font-family: 'OffBit-Dot';
-  src: url('/fonts/OffBit-Dot.ttf') format('ttf');
+  src: url('/PruebaTecnicaNativeBo/fonts/OffBit-Dot.ttf') format('ttf');
   font-weight: 400; /* Light weight */
   font-style: normal;
   font-display: swap;
@@ -92,7 +92,7 @@
 
 @font-face {
   font-family: 'OffBit-Dot';
-  src: url('/fonts/OffBit-DotBold.ttf') format('ttf');
+  src: url('/PruebaTecnicaNativeBo/fonts/OffBit-DotBold.ttf') format('ttf');
   font-weight: 700; /* Regular weight */
   font-style: normal;
   font-display: swap;
